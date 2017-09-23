@@ -6,7 +6,7 @@ use \Doctrine\ORM\Tools\Setup;
 use \Doctrine\ORM\EntityManager;
 use \Monolog\Logger;
 use \Monolog\Handler\StreamHandler;
-use Pangphp\Errors\ErrorMailService;
+use \Pangphp\Errors\ErrorMailService;
 use \Pangphp\Sessions\SessionService;
 use \Pangphp\Strings\StringService;
 use \Pangphp\EditableLists\EditableListMysqlService;
@@ -38,7 +38,7 @@ $services_array = [
 	
 		return new Config([
 				dirname(__FILE__)."/../../config/config.json",
-				APP_PATH."/config/".$c->get('settings')['mode']['environment'].'-config.json',
+				APP_PATH."/config/".$c->get('settings')['ENV'].'-config.json',
 		]);
 
 	},

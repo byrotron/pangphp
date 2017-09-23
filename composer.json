@@ -26,7 +26,7 @@
     },
 	"autoload": {
         "psr-4": {
-            "Pang\\": "src/Pangphp"
+            "Pangphp\\": "src/Pangphp"
         }
     }
 }

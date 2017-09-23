@@ -8,104 +8,134 @@ use \Slim\Container;
 use \Slim\App;
 
 use \Slim\Exception\NotFoundException;
+use \Pangphp\Exceptions\BootstrapException;
 
-class bootstrap {
+class Bootstrap {
 
     public $services;
     public $request;
     public $response;
     public $params;
-    
-    public static $instance;
-    
-    function __construct($services, Request $request = null, Response $response = null) {
-        
-        $this->services = $services;
-        $this->request = $request;
-        $this->response = $response;
-        
-        $this->set_services();
 
-        $this->set_session();
+    protected $_app;
 
-        //Clear tmp folder
-        $docs = $this->services->get("document_service");
-        $docs->deleteExpiredTempFiles();
-    }
-    
-    public function set_session() {
-        
-        $handler = $this->services->get("session");
-        $config = $this->services->get('config');
-        $this->setTimezone($config->get('time_zone'));
+    function __construct($ENV) {
+      
+      if( !in_array($ENV, ['production', 'development'] )) {
+        throw new BootstrapException("Your environment must be set to on of either \"development\" or \"production\"");
+      }
 
-        session_set_save_handler($handler, true);
-        
-        //Start the session and regenerate the id
-        session_start();
+      $configuration = [
+        'settings' => [
+          'displayErrorDetails' => true,
+          'ENV'=> $ENV
+        ]
+      ];
+      
+      $container = new Container($configuration);
+      $this->_app = new App($container);
 
     }
 
-    function set_services() {
+    public function setServices($path) {
+    
+      $app_services_array = [];
+      if(file_exists($path)) {
+        $app_services_array = require $path;
+      } else {
+        throw new BootstrapException("Could not locate your services at " . $path); 
+      }
+      
+      // Set built in services
+      require dirname(__FILE__)  . '/services.php';
 
-        require APP_PATH . DIRECTORY_SEPARATOR . '/src/app/services.php';
-        require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'services.php';
+      $services = array_merge($services_array, $app_services_array);
 
-        $services = array_merge($services_array, $app_services_array);
+      foreach($services as $k=>$v) {
+          $this->services[$k] = $v;
+      }
 
-        foreach($services as $k=>$v) {
-            $this->services[$k] = $v;
-        }
     }
     
-    function setTimezone($time_zone) {
-        ini_set("date.timezone", $time_zone); //'America/New_York'
-    }
-    
-    function setControllerString($controller) {
+    protected function _setSession() {
         
-        $name = str_replace(" ", "", ucwords(str_replace("-", " ", $controller)));
-        $str = "\\App\\";
-        $str .= $name;
-        $str .= "\\" . $name . "Controller";
-        return $str;
+      $handler = $this->services->get("session");
+      session_set_save_handler($handler, true);
+      session_start();
+
+    }
+    
+    protected function _setTimezone($time_zone) {
+
+        ini_set("date.timezone", $time_zone);
+
+    }
+    
+    protected function _setControllerString($controller) {
+        
+      $name = str_replace(" ", "", ucwords(str_replace("-", " ", $controller)));
+      $str = "\\App\\";
+      $str .= $name;
+      $str .= "\\" . $name . "Controller";
+      return $str;
         
     }
     
-    function setActionString($action) {
+    protected function _setActionString($action) {
 
         return str_replace("-", "_", $action);
         
     }
     
-    function routing() {
+    protected function _routing() {
         
-        $arr = str_getcsv($this->request->getQueryParams()["url"], "/");
+      $arr = str_getcsv($this->request->getQueryParams()["url"], "/");
 
-        $controller_str = $this->setControllerString($arr[1]);
+      $controller_str = $this->_setControllerString($arr[1]);
+
+      if(class_exists($controller_str)) {
+        $controller = new $controller_str($this);
         
-        
-        if(class_exists($controller_str)) {
-            $controller = new $controller_str($this);
-            
-            $action = $this->setActionString($arr[2]);
+        $action = $this->_setActionString($arr[2]);
 
-            if(method_exists($controller, $action)) {
+        if(method_exists($controller, $action)) {
 
-                return $controller->$action();
-
-            } else {
-                
-                throw new \Exception("We could not find the requested action " . $this->request->getQueryParams()["url"]);
-            }
+            return $controller->$action();
 
         } else {
             
-            throw new \Exception("We could not find the route for " . $this->request->getQueryParams()["url"]);
+            throw new \Exception("We could not find the requested action " . $this->request->getQueryParams()["url"]);
         }
+
+      } else {
+          throw new \Exception("We could not find the route for " . $this->request->getQueryParams()["url"]);
+      }
+    }
+
+
+    protected function _setAPIRouting() {
+      $this->_app->any('/api/[{path:.*}]', function (Request $request, Response $response) {
+        
+        try {
+
+            $this->request = $request;
+            $this->response = $response;
+            return $this->_routing();
+        
+        } catch(\Exception $e) {
+          
+            $error = $this->get('error_service');
+            $error->handleError($e);
+    
+            $newresponse = $response->withJson($error->error);
+            return $newresponse;
+    
+        }
+        
+      });
     }
     
-    function serve_static_files() {
+    function serveStaticFiles() {
         $var_path = $this->request->getAttribute("path");
         
         if(isset($var_path)) {
@@ -140,5 +170,38 @@ class bootstrap {
 
         }
         return $this->response->getBody()->write(file_get_contents('dist/index.html'));
+    }
+
+    protected function _setStaticFileRouting() {
+      $this->_app->get('/[{path:.*}]', function ($request, $response) {
+        
+        try {
+          
+          $this->request = $request;
+          $this->response = $response;
+          return $this->serveStaticFiles();
+    
+        } catch(\Exception $e) {
+          
+          // Over here we need to define specific pages for specific error codes
+          // 500, 404
+          $error = $this->get('error_service');
+          $error->handleStaticError($e);
+    
+          $newresponse = $response->withJson($error->error);
+          return $newresponse;
+    
+        }
+      });
+    }
+
+    function run() {
+
+      $this->_setTimezone();
+      $this->_setSession();
+      $this->_setAPIRouting();
+      
+      $this->_setStaticFileRouting();
+      $this->_app->run();
     }
 }
