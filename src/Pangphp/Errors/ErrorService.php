@@ -11,6 +11,7 @@ class ErrorService{
 	
 	protected $_em;
 	protected $_config;
+	protected $_env;
 
 	protected $_e;
 	protected $_code = 0;
@@ -23,18 +24,22 @@ class ErrorService{
 	public $error = [];
 	
 	public function __construct(EntityManager $em, Config $config){
-		
-		require dirname(__FILE__)."/../../app/app_exceptions.php";
-		require dirname(__FILE__)."/../pangphp_exceptions.php";
-		
-		$this->_instances = array_merge($pangphp_exceptions, $app_exceptions);
 
 		$this->_em = $em;
 		$this->_config = $config;
 		
 	}
+
+  function setEnvironment($env) {
+		$this->_env = $env;
+	}
 	
-	public function handleError(\Exception $e){
+	public function handleError(\Exception $e, $path){
+
+		require $path .  "/../src/exceptions.php";
+		require dirname(__FILE__) . "/../pang_exceptions.php";
+		
+		$this->_instances = array_merge($pangphp_exceptions, $app_exceptions);
 		
 		$this->setException($e);
 		$this->setMessage($e->getMessage());
@@ -46,7 +51,7 @@ class ErrorService{
 				"message" => $this->_message
 		];
 
-		if ($this->_config->get('environment') !== "development"){
+		if ($this->_env !== "development"){
 			$this->inProduction();
 			return;
 		}

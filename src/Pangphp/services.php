@@ -36,17 +36,14 @@ $services_array = [
 	
 	'config' => function($c) {
 	
-		return new Config([
-				dirname(__FILE__)."/../../config/config.json",
-				APP_PATH."/config/".$c->get('settings')['ENV'].'-config.json',
-		]);
+		return new Config($c->get('settings')['config']);
 
 	},
 
 	'entity_manager' => function($c) {
 
 		$isDevMode = true;
-		$config = Setup::createAnnotationMetadataConfiguration(array(__DIR__), $isDevMode);
+		$config = Setup::createAnnotationMetadataConfiguration($c->get('settings')['entities'], $isDevMode);
 		$config->addCustomStringFunction("MATCH_AGAINST", 'Pangphp\Classes\MatchAgainst');
 		
 		$db_config = $c->get("config");
@@ -100,7 +97,9 @@ $services_array = [
 	},
 	
 	"error_service" =>function($c) {
-		return new ErrorService($c['entity_manager'], $c['config']);
+		$error_service = new ErrorService($c['entity_manager'], $c['config']);
+		$error_service->setEnvironment($c->get('settings')["env"]);
+		return $error_service;
 	},
 	
 	"error_mail_service" =>function($c) {
