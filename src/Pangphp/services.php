@@ -42,10 +42,9 @@ $services_array = [
 
 	'entity_manager' => function($c) {
 
-		$isDevMode = true;
+		$isDevMode = $c->get('settings')['env'] === 'development' ? true : false;
 		$config = Setup::createAnnotationMetadataConfiguration($c->get('settings')['entities'], $isDevMode);
-		$config->addCustomStringFunction("MATCH_AGAINST", 'Pangphp\Classes\MatchAgainst');
-		
+
 		$db_config = $c->get("config");
 		// database configuration parameters
 		$conn = array(

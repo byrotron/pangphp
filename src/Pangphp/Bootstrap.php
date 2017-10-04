@@ -31,6 +31,11 @@ class Bootstrap {
         throw new BootstrapException("We could not find your config file at " . $config_path);
       }
 
+      $data_path = $path . "/../data";
+      if(!is_dir($data_path)) {
+        throw new BootstrapException("We could not find your data folder at " . $data_path);
+      }
+
       $entities_path = $path . "/../src/entities.json";
       if(!file_exists($config_path)) {
         throw new BootstrapException("We could not find your entities file at " . $entities_path);
@@ -48,6 +53,7 @@ class Bootstrap {
           "displayErrorDetails" => true,
           "env" => $env,
           "config" => $config_path,
+          "data" => $data_path,
           "entities" => $this->_setEntities($entities_path)
         ]
       ]);
