@@ -63,7 +63,7 @@ class DocumentService {
     $name = $this->setSecureFolderName();
     $folder = $this->_tmp_dir . '/' . $name;
 
-    $this->checkAndCreateDir(PUBLIC_PATH . $folder);
+    $this->checkAndCreateDir(getcwd() . $folder);
     
     return $folder;
 
