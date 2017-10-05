@@ -54,6 +54,7 @@ class Bootstrap {
           "env" => $env,
           "config" => $config_path,
           "data" => $data_path,
+          "public" => $path,
           "entities" => $this->_setEntities($entities_path)
         ]
       ]);
