@@ -72,7 +72,7 @@ $services_array = [
 	},
 
 	'print_service' => function($c) {
-		return new PrintService($c["document_service"]);
+		return new PrintService($c["document_service"], $c['config']);
 	},
 
 	'upload_service' => function($c) {

@@ -5,9 +5,11 @@ namespace Pangphp\Documents;
 class PrintService {
   
   protected $_document;
+  protected $_config;
 
-  function __construct(DocumentService $doc) {
+  function __construct(DocumentService $doc, $config) {
     $this->_document = $doc;
+    $this->_config = $config;
   }
 
   function printHtmlToPdf($html) {
@@ -20,7 +22,7 @@ class PrintService {
     // Then we generate the PDF
     $pdf_file = $tmp . '/' . 'printable.pdf';
 
-    exec('wkhtmltopdf -d 300 -B 2 -L 0 -R 0 -T 2 --print-media-type http://' . $_SERVER["HTTP_HOST"] . $html_file . ' ' . getcwd() . $pdf_file);
+    exec($this->_config->get('pdf_printer') . ' -d 300 -B 2 -L 0 -R 0 -T 2 --print-media-type http://' . $_SERVER["HTTP_HOST"] . $html_file . ' ' . getcwd() . $pdf_file);
 
     // Then we delete the HTML file
     unlink(getcwd() . $html_file);
