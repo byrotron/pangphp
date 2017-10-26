@@ -126,26 +126,27 @@ class AuthService {
 				return md5($this->_str->randomStringGenerator($size));
 		}
 		
-		function getAuthdUser() {
+		function getAuthdUser($type = 'array') {
 				
 				if(isset($_SESSION["auth_token"])) {
 					
 					$qb = $this->_em->createQueryBuilder();
 					$user = $qb->select(array("u", "r", "s"))
-										 ->from('App\Users\Entities\User', 'u')
-										 ->innerJoin('u.role', 'r')
-										 ->innerJoin('u.status', 's')
-										 ->where('u.auth_token = :token')
-										 ->setParameters(array(
-										 	'token' => $_SESSION["auth_token"]
-										 ));
+						->from('App\Users\Entities\User', 'u')
+						->innerJoin('u.role', 'r')
+						->innerJoin('u.status', 's')
+						->where('u.auth_token = :token')
+						->setParameters(array(
+						'token' => $_SESSION["auth_token"]
+						))
+						->getQuery();
 
-					$query = $qb->getQuery();
-					$user = $query->getSingleResult();
-					$this->current_user = $query->getArrayResult()[0];
-	
-					return $user instanceof \App\Users\Entities\User ? $user : false;
-						
+					if($type == 'array') {
+						return $user->getArrayResult()[0];
+					} else if($type == 'object') {
+						return $user->getSingleResult();
+					}
+
 				} else {
 						return false;
 				}
@@ -153,7 +154,7 @@ class AuthService {
 
 		function isAuthd() {
 			
-			if(!is_object($user = $this->getAuthdUser())){
+			if(!is_object($user = $this->getAuthdUser('object'))){
 				throw new AuthException(self::NOT_AUTHD);
 			}
 		

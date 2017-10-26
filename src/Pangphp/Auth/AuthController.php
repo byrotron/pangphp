@@ -73,8 +73,8 @@ class AuthController {
         $body = array(
           "status" => true,
           "result" => [
-            "user" => $auth->current_user,
-            "privileges" => $privs->getRolePrivileges($auth->getAuthdUser()->getRole())
+            "user" => $auth->getAuthdUser(),
+            "privileges" => $privs->getRolePrivileges($auth->getAuthdUser('object')->getRole())
           ]
         );
 
