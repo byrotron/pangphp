@@ -90,13 +90,11 @@ class MailService {
       $this->getTemplate();
  
 
-      if($this->_mailer->send()) {
-          return true;
-      } else {
+      if(!$this->_mailer->send()) {
           throw new MailException($this->_mailer->ErrorInfo);
       }
 
-      $this->_mailer->clearMailReceipients();
+      $this->_mailer->ClearAllRecipients();
     }
 
   }
