@@ -21,7 +21,7 @@ class ErrorService{
 	protected $_instances;
 	protected $_instance;
 
-	public $error = [];
+	public $error;
 	
 	public function __construct(EntityManager $em, Config $config){
 
@@ -38,6 +38,7 @@ class ErrorService{
 
 		require $path .  "/../src/exceptions.php";
 		require dirname(__FILE__) . "/../pang_exceptions.php";
+		$this->error = new \stdClass();
 		
 		$this->_instances = array_merge($pangphp_exceptions, $app_exceptions);
 		
@@ -46,10 +47,8 @@ class ErrorService{
 		$this->setCode($e->getCode());
 		$this->setTrace($e->getTrace());
 		$this->_instance = $this->getInstance();
-		$this->error = [
-				"status"  => false,
-				"message" => $this->_message
-		];
+		$this->error->status = false;
+		$this->error->message = $this->_message;
 
 		if ($this->_env !== "development"){
 			$this->inProduction();
@@ -90,9 +89,9 @@ class ErrorService{
 	public function inProduction (){
 		
 		if($this->_instance) {
-			$this->error["code"] = $this->_instance["code"];
+			$this->error->code = $this->_instance["code"];
 			if($this->_instance['message']) {
-				$this->error["message"] = $this->_instance['message'];
+				$this->error->message = $this->_instance['message'];
 			}
 
 		}
@@ -102,21 +101,21 @@ class ErrorService{
 	
 	public function inDevelopment(){
 
-		$this->error["exception"] = $this->_e;
-		$this->error["trace"] = $this->_trace;
+		$this->error->exception = $this->_e;
+		$this->error->trace = $this->_trace;
 
 		if($this->_instance) {
 			
-			$this->error["code"] = $this->_instance["code"];
-			$this->error["actual_message"] = $this->_message;
+			$this->error->code = $this->_instance["code"];
+			$this->error->actual_message = $this->_message;
 
 			if($this->_instance['message']) {
-				$this->error["message"] = $this->_instance['message'];
+				$this->error->message = $this->_instance['message'];
 			}
 
 		} else {
 
-			$this->error["message"] = "Error Instance Not Found: " . $this->_message;
+			$this->error->message = "Error Instance Not Found: " . $this->_message;
 
 		}
 
