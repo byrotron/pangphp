@@ -21,14 +21,14 @@ class UsersController extends AbstractController {
     $result = $this->_privileges->protectedAction("users", "create_user", $this->_current_user);
 	
     $user_service = $this->_app->services->get("user_service");
-    $body = $this->_app->request->getParsedBody();
+    $data = $this->_app->request->getParsedBody();
 
-    $user = $user_service->createUser($body["user"]);
+    $user = $user_service->createUser($data["user"]);
 
     $response_body = array(
       "status" => true,
       "message" => "Your request was successful",
-      "result" => $user->get_array()
+      "result" => $user
     );
 
     $newresponse = $this->_app->response->withJson($response_body);
@@ -85,26 +85,26 @@ class UsersController extends AbstractController {
     $params = $this->_app->request->getQueryParams();
     $service = $this->_app->services->get("user_service");
     
-    $user = $service->getUser($params["id"]);
+    $user = $service->getUser($params["id"])->getArrayResult();
     
-    if($user) {
+    if(count($user)) {
 
-      $body = array(
+      $response_body = array(
           "status" => true,
           "message" => "Your request was successful",
-          "result" => $user
+          "result" => $user[0]
       );
       
     } else {
        
-       $body = array(
+       $response_body = array(
           "status" => false,
           "message" => "We could not find this user"
        );
 
     }
 
-    $newresponse = $this->_app->response->withJson($body);
+    $newresponse = $this->_app->response->withJson($response_body);
     return $newresponse;
 
   }
@@ -119,10 +119,11 @@ class UsersController extends AbstractController {
     $this->_auth->isAuthd();
     $result = $this->_privileges->protectedAction("users", "update_user", $this->_current_user);
 
+    $data = $this->_app->request->getParsedBody();
     $user_service = $this->_app->services->get("user_service");
 	  $user_data = $this->_app->request->getParams();
 
-    $user = $user_service->updateUser($params["id"], $body["user"]);
+    $user = $user_service->updateUser($data["id"], $data["user"]);
 
     $response_body = array(
 	    "status"  => true,

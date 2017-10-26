@@ -26,24 +26,24 @@ class UserMysqlService {
 		$qb = $this->_em->createQueryBuilder();
 		
 		return $qb->select(array("u", "r"))
-							->from('App\Users\Entities\User', 'u')
-							->innerJoin('u.role', 'r')
-							->getQuery()
-							->getArrayResult();
+			->from('App\Users\Entities\User', 'u')
+			->innerJoin('u.role', 'r')
+			->getQuery()
+			->getArrayResult();
 	}
 
 	function getPaginatedUsers($page, $limit, $orderby, $direction) {
 		$qb = $this->_em->createQueryBuilder();
 
 		return 	$qb->select(array("u", "r", "s"))
-							 ->from('App\Users\Entities\User', 'u')
-							 ->orderBy('u.' . $orderby, $direction)
-							 ->innerJoin('u.role', 'r')
-							 ->innerJoin('u.status', 's')
-							 ->setFirstResult( ($page - 1) * $limit )
-							 ->setMaxResults( $limit )
-							 ->getQuery()
-							 ->getArrayResult();
+			->from('App\Users\Entities\User', 'u')
+			->orderBy('u.' . $orderby, $direction)
+			->innerJoin('u.role', 'r')
+			->innerJoin('u.status', 's')
+			->setFirstResult( ($page - 1) * $limit )
+			->setMaxResults( $limit )
+			->getQuery()
+			->getArrayResult();
 
 	}
 
@@ -51,15 +51,15 @@ class UserMysqlService {
 		$qb = $this->_em->createQueryBuilder();
 		
 		return $qb->select(array("u", "r"))
-							->from('App\Users\Entities\User', 'u')
-							->where($qb->expr()->in('u.id', ":ids"))
-							->setParameter('ids', $ids)
-							->orderBy('u.' . $orderby, $direction)
-							->innerJoin('u.role', 'r')
-							->setFirstResult( ($page - 1) * $limit )
-							->setMaxResults( $limit )
-							->getQuery()
-							->getArrayResult();
+			->from('App\Users\Entities\User', 'u')
+			->where($qb->expr()->in('u.id', ":ids"))
+			->setParameter('ids', $ids)
+			->orderBy('u.' . $orderby, $direction)
+			->innerJoin('u.role', 'r')
+			->setFirstResult( ($page - 1) * $limit )
+			->setMaxResults( $limit )
+			->getQuery()
+			->getArrayResult();
 	}
 
 	function getUsers($page, $limit, $orderby, $direction, $filter = null) {
@@ -83,32 +83,31 @@ class UserMysqlService {
 		$qb = $this->_em->createQueryBuilder();
 		
 		return $qb->select(array("u","r"))
-							->from('App\Users\Entities\User', 'u')
-							->innerJoin('u.role', 'r')
-							->where('u.id = :id')
-							->setParameter('id', $id)
-							->getQuery()
-							->getArrayResult();
+			->from('App\Users\Entities\User', 'u')
+			->innerJoin('u.role', 'r')
+			->where('u.id = :id')
+			->setParameter('id', $id)
+			->getQuery();
 	}
 
 	function getUserByEmail($email) {
 		$qb = $this->_em->createQueryBuilder();
 		
 		return $qb->select(array("u"))
-							->from('App\Users\Entities\User', 'u')
-							->where('u.email = :email')
-							->setParameter('email', $email)
-							->innerJoin('u.role', 'r')
-							->getQuery();
+			->from('App\Users\Entities\User', 'u')
+			->where('u.email = :email')
+			->setParameter('email', $email)
+			->innerJoin('u.role', 'r')
+			->getQuery();
 	}
 
 	function countAllUsers() {
 		$qb = $this->_em->createQueryBuilder();
 
 		return $qb->select(array("COUNT(u.id)"))
-							->from('App\Users\Entities\User', 'u')
-							->getQuery()
-							->getSingleScalarResult();
+			->from('App\Users\Entities\User', 'u')
+			->getQuery()
+			->getSingleScalarResult();
 	}
 
 	function createUser($user_data) {
@@ -127,7 +126,8 @@ class UserMysqlService {
 			// Hash provided password and save it
 			$password = $this->_auth->createPassword($user_data["password"]);
 		} else {
-			$password = $this->_auth->createRandomPassword();
+			$original_password = $this->_auth->createRandomPassword();
+			$password = $this->_auth->createPassword($original_password);
 		}
 		
 		$user->setPassword($password);
@@ -142,9 +142,9 @@ class UserMysqlService {
 	function registerUser($user_data) {
 	
 		$user = $this->_em->getRepository("App\Users\Entities\User")
-								 ->findOneBy(array(
-										"email" => $user_data["email"]
-								 ));
+			->findOneBy(array(
+				"email" => $user_data["email"]
+			));
 		
 		if(is_null($user)) {
 			

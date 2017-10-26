@@ -30,7 +30,7 @@ abstract class User {
     protected $email;
 
      /** 
-    * @Column(type="string", nullable=false, unique=true) 
+    * @Column(type="string", nullable=false) 
     */
     protected $password;
 	
