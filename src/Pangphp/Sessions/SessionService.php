@@ -29,7 +29,7 @@ class SessionService implements \SessionHandlerInterface {
         if(isset($session)) {
             return $session->getData();
         }
-        return true;
+        return "";
     }
      
     function write($session_id, $session_data) {
