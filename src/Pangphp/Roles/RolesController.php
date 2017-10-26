@@ -42,32 +42,20 @@ class RolesController extends AbstractController {
    *  label="View Roles", 
    *  description="View and manage the list of roles within the system")
    */
-  function view_roles() {
+  function get_roles() {
 
     $this->_auth->isAuthd();
-    $result = $this->_privileges->protectedAction("roles", "view_roles", $this->_current_user);
+    $result = $this->_privileges->protectedAction("roles", "get_roles", $this->_current_user);
 
     $service = $service = $this->_app->services->get("role_service");
     $roles = $service->get_roles();
     
-    if(count($roles) > 0) {
-      $body = array(
-          "status" => true,
-          "message" => "Your request was successful",
-          "result" => array(
-             "roles" => $roles
-          )
-      );
-      
-    } else {
-       $body = array(
-          "status" => false,
-          "message" => "We could not find any roles",
-          "result" => []
-      );
-    }
+    $response_body = array(
+      "status" => true,
+      "result" => $roles
+    );
 
-    $newresponse = $this->_app->response->withJson($body);
+    $newresponse = $this->_app->response->withJson($response_body);
     return $newresponse;
 
   }
@@ -83,24 +71,24 @@ class RolesController extends AbstractController {
     $result = $this->_privileges->protectedAction("roles", "update_role", $this->_current_user);
 
     $service = $service = $this->_app->services->get("role_service");
-    $body = $this->_app->request->getParsedBody();
-    $updated = $service->update_role($body["id"], $body["name"]);
+    $data = $this->_app->request->getParsedBody();
+    $updated = $service->update_role($data["id"], $data["name"]);
 
     if($updated === true) {
-      $body = array(
+      $response_body = array(
           "status" => true,
           "message" => "Your request was successful",
       );
       
     } else {
-       $body = array(
+       $response_body = array(
           "status" => false,
           "message" => "This role does not exist",
           "result" => []
       );
     }
 
-    $newresponse = $this->_app->response->withJson($body);
+    $newresponse = $this->_app->response->withJson($response_body);
     return $newresponse;
 
   }
@@ -116,23 +104,23 @@ class RolesController extends AbstractController {
     $result = $this->_privileges->protectedAction("roles", "delete_role", $this->_current_user);
 
     $service = $service = $this->_app->services->get("role_service");
-    $body = $this->_app->request->getParsedBody();
-    $found = $service->delete_role($body["id"]);
+    $data = $this->_app->request->getParsedBody();
+    $found = $service->delete_role($data["id"]);
 
     if($found === true) {
-      $body = array(
+      $response_body = array(
           "status" => true,
           "message" => "Your request was successful",
       );
       
     } else {
-       $body = array(
+       $response_body = array(
           "status" => false,
           "message" => "This role does not exist"
       );
     }
 
-    $newresponse = $this->_app->response->withJson($body);
+    $newresponse = $this->_app->response->withJson($response_body);
     return $newresponse;
 
   }
