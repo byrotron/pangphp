@@ -187,15 +187,16 @@ class Bootstrap {
 
           $this->request = $request;
           $this->response = $response;
-            return $this->_routing();
+          return $this->_routing();
         
         } catch(\Exception $e) {
           
-            $error = $this->services->get("error_service");
-            $error->handleError($e, $this->_app_path);
-    
-            $newresponse = $response->withJson($error->error);
-            return $newresponse;
+          $error = $this->services->get("error_service");
+          $error->handleError($e, $this->_app_path);
+
+          $status = !isset($error->error->code) || $error->error->code === 0 ? 200 : $error->error->code;
+          $newresponse = $response->withStatus($status)->withJson($error->error);
+          return $newresponse;
     
         }
 
