@@ -5,13 +5,15 @@ namespace Pangphp\Search;
 class SearchService {
 
   protected $_elastic;
+  protected $_config;
 
   public $total_items;
   public $ids = [];
   public $seach_max_score;
 
-  function __construct($elastic) {
+  function __construct($elastic, $config) {
     $this->_elastic = $elastic;
+    $this->_config = $config;
   }
 
   function getSearchResults($index, $type, $term) {
@@ -48,6 +50,41 @@ class SearchService {
       }
     }
 
+  }
+
+  function createIndex($type, $id, $body) {
+    
+    $params = [
+      'index' => $this->_config->get("search_index"),
+      'type' => $type,
+      'id' => $id,
+      'body' => ["search_body" => $body]
+    ];
+
+    $this->_elastic->index($params);
+
+  }
+
+  function updateIndex($type, $id, $body) {
+    $params = [
+      'index' => $this->_config->get("search_index"),
+      'type' => $type,
+      'id' => $id,
+      'body' => ["search_body" => $body]
+    ];
+
+    $this->_elastic->index($params);
+  }
+
+  function delete() {
+    $params = [
+        'index' => $this->_config->get("search_index"),
+        'type' => $type,
+        'id' => 'my_id'
+    ];
+  
+    // Delete doc at /my_index/my_type/my_id
+    $response = $client->delete($params);
   }
 
 }
