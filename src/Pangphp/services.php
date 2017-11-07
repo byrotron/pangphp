@@ -84,7 +84,7 @@ $services_array = [
 	},
 
 	'search' => function($c) {
-		return new SearchService($c["elastic"]);
+		return new SearchService($c["elastic"], $c['config']);
 	},
 
 	'mailer' => function($c) {
