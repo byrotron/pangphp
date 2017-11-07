@@ -82,9 +82,10 @@ class UserMysqlService {
 	function getUser($id) {
 		$qb = $this->_em->createQueryBuilder();
 		
-		return $qb->select(array("u","r"))
+		return $qb->select(array("u","r", "s"))
 			->from('App\Users\Entities\User', 'u')
 			->innerJoin('u.role', 'r')
+			->innerJoin('u.status', 's')
 			->where('u.id = :id')
 			->setParameter('id', $id)
 			->getQuery();
