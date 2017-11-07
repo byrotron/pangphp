@@ -79,7 +79,11 @@ class MailService {
 
   function sendmail() {
 
-    $this->setSMTP();
+    if($this->_config->get("mail.use_smtp") === true) {
+      $this->setSMTP();
+    } else {
+      $this->_mailer->isSendmail();
+    }
 
     foreach($this->_to as $to_address) {
  
@@ -101,22 +105,19 @@ class MailService {
 
   function setSMTP() {
 
-    if($this->_config->get("mail.use_smtp") === true) {
-      
-      $this->_mailer->isSMTP();
-      $this->_mailer->Host = $this->_config->get("mail.host");
-      $this->_mailer->SMTPOptions =array(
-          "ssl" => array(
-              "verify_peer" => false,
-              "verify_peer_name" => false,
-              "allow_self_signed" => true
-          )
-      );
-      $this->_mailer->SMTPAuth = true;
-      $this->_mailer->Username = $this->_config->get("mail.username");
-      $this->_mailer->Password = $this->_config->get("mail.password");
-      $this->_mailer->Port = $this->_config->get("mail.port");
-    }
+    $this->_mailer->isSMTP();
+    $this->_mailer->Host = $this->_config->get("mail.host");
+    $this->_mailer->SMTPOptions =array(
+        "ssl" => array(
+            "verify_peer" => false,
+            "verify_peer_name" => false,
+            "allow_self_signed" => true
+        )
+    );
+    $this->_mailer->SMTPAuth = true;
+    $this->_mailer->Username = $this->_config->get("mail.username");
+    $this->_mailer->Password = $this->_config->get("mail.password");
+    $this->_mailer->Port = $this->_config->get("mail.port");
 
   }
 }
