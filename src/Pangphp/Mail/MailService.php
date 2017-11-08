@@ -107,13 +107,19 @@ class MailService {
 
     $this->_mailer->isSMTP();
     $this->_mailer->Host = $this->_config->get("mail.host");
-    $this->_mailer->SMTPOptions =array(
-        "ssl" => array(
-            "verify_peer" => false,
-            "verify_peer_name" => false,
-            "allow_self_signed" => true
-        )
-    );
+
+    if($this->_config->get("mail.ssl") === false) {
+      $this->_mailer->SMTPOptions =array(
+          "ssl" => array(
+              "verify_peer" => false,
+              "verify_peer_name" => false,
+              "allow_self_signed" => true
+          )
+      );
+    } else {
+      $this->_mailer->SMTPSecure = $this->_config->get("mail.auth_type");
+    }
+    
     $this->_mailer->SMTPAuth = true;
     $this->_mailer->Username = $this->_config->get("mail.username");
     $this->_mailer->Password = $this->_config->get("mail.password");
