@@ -227,6 +227,8 @@ class Bootstrap {
                         break;
                     case "png": $header = "image/png";
                         break;
+                    case "pdf": $header = "application/pdf";
+                        break;
                     default: $header = "text/plain";
                 }
 
