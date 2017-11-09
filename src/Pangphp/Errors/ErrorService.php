@@ -45,6 +45,8 @@ class ErrorService{
 		$this->setException($e);
 		$this->setMessage($e->getMessage());
 		$this->setCode($e->getCode());
+		$this->setLine($e->getLine());
+		$this->setFile($e->getFile());
 		$this->setTrace($e->getTrace());
 		$this->_instance = $this->getInstance();
 		$this->error->status = false;
@@ -78,6 +80,8 @@ class ErrorService{
 		$insert_error = new Error();
 		$insert_error->setInstance($this->_e);
 		$insert_error->setCode($this->_code);
+		$insert_error->setLine($this->_line);
+		$insert_error->setFile($this->_file);
 		$insert_error->setMessage($this->_message);
 		$insert_error->setLoggedAt();
 		
@@ -187,6 +191,14 @@ class ErrorService{
 	
 	public function getMessage(){
 		return $this->_message;
+	}
+
+	public function setLine($line) {
+		$this->_line = $line;
+	}
+
+	public function setFile($file){
+		$this->_file = $file;
 	}
 	
 	public function setMessage($message){
