@@ -24,14 +24,24 @@ class Error {
 	 * @Column(type="integer", nullable=false, options={"default" : 0})
 	 */
 	protected $code;
+
+	/**
+	 * @Column(type="integer", nullable=false)
+	 */
+	protected $line;
+
+	/**
+	 * @Column(type="text", nullable=false)
+	 */
+	protected $file;
 	
 	/**
-	 * @Column(type="text", nullable=true)
+	 * @Column(type="text", nullable=false)
 	 */
 	protected $message;
 	
 	/**
-	 * @Column(type="date", nullable=true)
+	 * @Column(type="date", nullable=false)
 	 */
 	protected $logged_at;
 	
@@ -58,7 +68,23 @@ class Error {
 	public function setCode($code){
 		$this->code = $code;
 	}
+		
+	public function getLine(){
+		return $this->line;
+	}
 	
+	public function setLine($line){
+		$this->line = $line;
+	}
+		
+	public function getFile(){
+		return $this->file;
+	}
+	
+	public function setFile($file){
+		$this->file = $file;
+	}
+
 	public function getMessage(){
 		return $this->message;
 	}
