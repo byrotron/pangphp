@@ -144,7 +144,7 @@ class AuthService {
 					if($type == 'array') {
 						return $user->getArrayResult()[0];
 					} else if($type == 'object') {
-						return $user->getSingleResult();
+						return $user->getOneOrNullResult();
 					}
 
 				} else {

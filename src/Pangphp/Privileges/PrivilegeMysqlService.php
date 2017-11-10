@@ -40,7 +40,7 @@ abstract class PrivilegeMysqlService {
 											'role' => $role
 										))
 										->getQuery()
-										->getSingleResult();
+										->getOneOrNullResult();
 		
 		// Dont update it if it is the same value as what is in the database currently
 		if($privilege->getStatus() !== $status) {
@@ -129,7 +129,7 @@ abstract class PrivilegeMysqlService {
 								'controller' => $controller_name
 							))
 							->getQuery()
-							->getSingleResult();
+							->getOneOrNullResult();
 	}
 
 	protected function getProtectedAction($controller, $action, AppUser $user) {
@@ -148,7 +148,7 @@ abstract class PrivilegeMysqlService {
 								"role" => $role->getId()
 							))
 							->getQuery()
-							->getSingleResult();
+							->getOneOrNullResult();
 	}
 
 	public function isSuperUser(AppUser $user) {

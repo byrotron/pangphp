@@ -20,7 +20,7 @@ class AuthController {
 	  $auth = $this->_app->services->get("auth_service");
     
     $user_obj = $user_service->getUserByEmail($data["email"]);
-    $user = $user_obj->getSingleResult();
+    $user = $user_obj->getOneOrNullResult();
     
     if(!$user){
 	    throw new AuthException("This account does not exist");

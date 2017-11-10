@@ -25,7 +25,7 @@ class EditableListMysqlService {
       ->where('g.group = :group')
       ->setParameter('group', $group_name)
       ->getQuery()
-      ->getSingleResult();
+      ->getOneOrNullResult();
   }
 
   function getList($id) {
