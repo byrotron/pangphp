@@ -34,6 +34,11 @@ class Error {
 	 * @Column(type="text", nullable=false)
 	 */
 	protected $file;
+
+	/**
+	 * @Column(type="text", nullable=false)
+	 */
+	protected $trace;
 	
 	/**
 	 * @Column(type="text", nullable=false)
@@ -83,6 +88,14 @@ class Error {
 	
 	public function setFile($file){
 		$this->file = $file;
+	}
+		
+	public function getTrace(){
+		return $this->trace;
+	}
+	
+	public function setTrace($trace){
+		$this->trace = $trace;
 	}
 
 	public function getMessage(){

@@ -82,6 +82,7 @@ class ErrorService{
 		$insert_error->setCode($this->_code);
 		$insert_error->setLine($this->_line);
 		$insert_error->setFile($this->_file);
+		$insert_error->setTrace(json_encode($this->_trace));
 		$insert_error->setMessage($this->_message);
 		$insert_error->setLoggedAt();
 		
