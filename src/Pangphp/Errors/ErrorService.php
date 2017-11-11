@@ -86,6 +86,7 @@ class ErrorService{
 		$insert_error->setMessage($this->_message);
 		$insert_error->setLoggedAt();
 		
+		// $this->_em->resetEntityManager();
 		$this->_em->persist($insert_error);
 		$this->_em->flush();
 
