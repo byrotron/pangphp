@@ -51,6 +51,7 @@ class Bootstrap {
       $container = new Container([
         "settings" => [
           "displayErrorDetails" => true,
+          'addContentLengthHeader' => false,
           "env" => $env,
           "config" => $config_path,
           "data" => $data_path,
@@ -228,6 +229,8 @@ class Bootstrap {
                     case "png": $header = "image/png";
                         break;
                     case "pdf": $header = "application/pdf";
+                        break;
+                    case "html": $header = "text/html";
                         break;
                     default: $header = "text/plain";
                 }
