@@ -3,6 +3,7 @@
 namespace Pangphp\Users;
 
 use \App\Auth\AuthService as AppAuthService;
+use \Pangphp\Mail\MailService;
 use \Doctrine\ORM\EntityManager;
 
 use \App\Users\Entities\User as AppUser;
@@ -11,14 +12,15 @@ class UserMysqlService {
 
 	protected $_em;
 	protected $_auth;
-	protected $_search;
+	protected $_mailer;
+
 	public $total_items;
 	
-	function __construct(EntityManager $em, AppAuthService $auth, $search) {
+	function __construct(EntityManager $em, AppAuthService $auth, MailService $mailer) {
 		
 		$this->_em = $em;
 		$this->_auth = $auth;
-		$this->_search = $search;
+		$this->_mailer = $mailer;
 
 	}
 
@@ -32,9 +34,10 @@ class UserMysqlService {
 			->getArrayResult();
 	}
 
-	function getPaginatedUsers($page, $limit, $orderby, $direction) {
-		$qb = $this->_em->createQueryBuilder();
+	function getUsers($page, $limit, $orderby, $direction, $filter = null) {
 
+		$qb = $this->_em->createQueryBuilder();
+		
 		return 	$qb->select(array("u", "r", "s"))
 			->from('App\Users\Entities\User', 'u')
 			->orderBy('u.' . $orderby, $direction)
@@ -44,38 +47,6 @@ class UserMysqlService {
 			->setMaxResults( $limit )
 			->getQuery()
 			->getArrayResult();
-
-	}
-
-	function getSearchResults($ids, $page, $limit, $orderby, $direction) {
-		$qb = $this->_em->createQueryBuilder();
-		
-		return $qb->select(array("u", "r"))
-			->from('App\Users\Entities\User', 'u')
-			->where($qb->expr()->in('u.id', ":ids"))
-			->setParameter('ids', $ids)
-			->orderBy('u.' . $orderby, $direction)
-			->innerJoin('u.role', 'r')
-			->setFirstResult( ($page - 1) * $limit )
-			->setMaxResults( $limit )
-			->getQuery()
-			->getArrayResult();
-	}
-
-	function getUsers($page, $limit, $orderby, $direction, $filter = null) {
-
-		if(isset($filter)) {
-			
-			$this->_search->search('pangphp', 'users', $filter);
-			$this->total_items = $this->_search->total_items;
-			return $this->getSearchResults($this->_search->ids, $page, $limit, $orderby, $direction);
-
-		} else  {
-
-			$this->total_items = $this->countAllUsers();
-			return $this->getPaginatedUsers($page, $limit, $orderby, $direction);
-
-		}
 
 	}
 	
@@ -102,7 +73,7 @@ class UserMysqlService {
 			->getQuery();
 	}
 
-	function countAllUsers() {
+	function totalUsers() {
 		$qb = $this->_em->createQueryBuilder();
 
 		return $qb->select(array("COUNT(u.id)"))
@@ -124,22 +95,30 @@ class UserMysqlService {
 		$user->setStatus($status);
 		
 		if(isset($user_data['password'])){
-			// Hash provided password and save it
-			$password = $this->_auth->createPassword($user_data["password"]);
+			// Hash provided password and save it\
+			$original_password = $user_data["password"];
 		} else {
 			$original_password = $this->_auth->createRandomPassword();
-			$password = $this->_auth->createPassword($original_password);
 		}
+
+		$password = $this->_auth->createPassword($original_password);
 		
 		$user->setPassword($password);
 
 		$this->_em->persist($user);
 		$this->_em->flush();
 
+		$this->newUserNotification($user, $original_password);
+
 		return $user;
 
 	}
-	
+
+		
+	function newUserNotification(\Pangphp\Users\Entities\User $user, $password) {
+		throw new \Exception("New User notification has not been setup");
+	}
+
 	function registerUser($user_data) {
 	
 		$user = $this->_em->getRepository("App\Users\Entities\User")

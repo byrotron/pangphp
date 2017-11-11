@@ -63,7 +63,7 @@ class UsersController extends AbstractController {
         "message" => "Your request was successful",
         "result" => array(
             "users" => $users,
-            "total_items" => $user_service->total_items
+            "total_items" => $user_service->totalUsers()
         )
     );
 
