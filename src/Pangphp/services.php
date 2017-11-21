@@ -41,13 +41,30 @@ $services_array = [
 	},
 
 	'entity_manager' => function($c) {
-
+	
 		$isDevMode = $c->get('settings')['env'] === 'development' ? true : false;
+		// if ($isDevMode) {
+				$cache = new \Doctrine\Common\Cache\ArrayCache;
+		// } else {
+		// 		$cache = new \Doctrine\Common\Cache\ApcCache;
+		// }
+
 		$config = Setup::createAnnotationMetadataConfiguration($c->get('settings')['entities'], $isDevMode);
+		$config->setMetadataCacheImpl($cache);
+		$driverImpl = $config->newDefaultAnnotationDriver($c->get('settings')['entities']);
+		$config->setMetadataDriverImpl($driverImpl);
+		$config->setProxyDir( $c->get('settings')['public'] . "/../" . 'src/Proxies');
+		$config->setProxyNamespace('App\Proxies');
+	
+		if ($isDevMode) {
+				$config->setAutoGenerateProxyClasses(true);
+		} else {
+				$config->setAutoGenerateProxyClasses(false);
+		}
 
 		$db_config = $c->get("config");
 		// database configuration parameters
-		$conn = array(
+		$connectionOptions  = array(
 			'driver'   => $db_config->get('database.driver'),
 			'user'     => $db_config->get('database.user'),
 			'password' => $db_config->get('database.password'),
@@ -55,7 +72,7 @@ $services_array = [
 		);
 
 		// obtaining the entity manager
-		return EntityManager::create($conn, $config);
+		return EntityManager::create($connectionOptions, $config);
 		
 	},
 

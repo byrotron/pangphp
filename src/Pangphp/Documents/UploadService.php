@@ -45,6 +45,10 @@ class UploadService {
     array_push($this->_validators, new MimeTypeValidator($mimes));
   }
 
+  function getDocument() {
+    return $this->_document;
+  }
+
   function upload() {
 
     if(!isset($this->_folder)) {

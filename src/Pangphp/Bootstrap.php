@@ -222,7 +222,13 @@ class Bootstrap {
                         break;
                     case "map": $header = "text/json";
                         break;
-                    case "woff2": $header = "application/font-woff";
+                    case "ttf": $header = "application/x-font-ttf";
+                        break;
+                    case "eot": $header = "application/vnd.ms-fontobject";
+                        break;
+                    case "woff": $header = "application/font-woff";
+                        break;
+                    case "woff2": $header = "application/font-woff2";
                         break;
                     case "svg": $header = "image/svg+xml";
                         break;
