@@ -81,7 +81,7 @@ class MailService {
 
     if($this->_config->get("mail.use_smtp") === true) {
       $this->setSMTP();
-    } else {
+    } else if($this->_config->get("mail.use_smtp") === false) {
       $this->_mailer->isSendmail();
     }
 
