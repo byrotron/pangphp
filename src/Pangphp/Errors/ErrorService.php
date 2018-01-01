@@ -121,7 +121,7 @@ class ErrorService{
 
 		} else {
 
-			$this->error->message = "Error Instance Not Found: " . $this->_message;
+			$this->error->message = $this->_message;
 
 		}
 

@@ -17,11 +17,6 @@ $pangphp_exceptions = [
 		"message"  => "This item cannot be deleted as it is referenced somewhere else",
 	],
 	[
-		"instance" => "Pangphp\Auth\AuthException",
-		"code"     => 401,
-		"message"  => "You are not Authorised to access this page.",
-	],
-	[
 		"instance" => "RuntimeException",
 		"code"     => 500,
 		"message"  => "You request failed, please try again or contact your system admin",
