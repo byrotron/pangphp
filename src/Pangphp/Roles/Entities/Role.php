@@ -10,12 +10,12 @@ abstract class Role {
   /**
   * @id
   * @Column(type="integer")
-  * @GeneratedValue
+  * @GeneratedValue(strategy="AUTO")
   */
   protected $id;
 
   /** 
-  * @Column(type="string", nullable=false, ) 
+  * @Column(type="string", nullable=false) 
   */
   protected $name;
 
@@ -41,7 +41,6 @@ abstract class Role {
     return $this->name;
   }
 
-  // Set default and not able to be set by anyone besides DBA
   function setEnabled() {
     $this->enabled = true;
   }
@@ -53,13 +52,6 @@ abstract class Role {
 
   function getPrivileges() {
     return $this->privileges;
-  }
-
-  function get_array() {
-
-    $array = get_object_vars($this);
-    return $array;
-
   }
 
 }
