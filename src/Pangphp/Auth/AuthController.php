@@ -62,7 +62,6 @@ class AuthController {
 
   function is_authd() {
       
-    $em = $this->_app->services->get("entity_manager");
     $auth = $this->_app->services->get("auth_service");
     $privs = $this->_app->services->get("privilege_service");
 
