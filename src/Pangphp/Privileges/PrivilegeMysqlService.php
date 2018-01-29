@@ -85,13 +85,15 @@ abstract class PrivilegeMysqlService {
 	function getRolePrivileges(AppRole $role) {
 
 		$qb = $this->_entity_manager->createQueryBuilder();
+		$id = $role->getId(); 
 
-		return $qb->select(array("a.action, p.status"))
+		return $qb->select(array("c.controller, a.action, p.status"))
 							->from('App\Privileges\Entities\Privilege', 'p')
 							->innerJoin('p.action', 'a')
+							->innerJoin('a.controller', 'c')
 							->innerJoin('p.role', 'r')
 							->where('p.role = :role')
-							->setParameter("role", $role->getId())
+							->setParameter("role", $id)
 							->getQuery()
 							->getArrayResult();
 	}
