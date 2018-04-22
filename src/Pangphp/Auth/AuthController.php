@@ -41,6 +41,67 @@ class AuthController {
     return $newresponse;
 
   }
+  
+  function reset_account_notification() {
+
+    $string_service = $this->_app->services->get("string_service");
+    $user_service = $this->_app->services->get("user_service");
+    $data = $this->_app->request->getParsedBody();
+    $link = md5($string_service->randomStringGenerator(32));
+
+    $user_service->sendResetLink($data["email"], $link);
+
+    $response_body = array(
+        "status" => true,
+        "message" => "Reset account notification was sent successfully"
+    );
+
+    $newresponse = $this->_app->response->withJson($response_body);
+    return $newresponse;
+
+  }
+  
+  function valid_token() {
+
+    $user_service = $this->_app->services->get("user_service");
+    $data = $this->_app->request->getParsedBody();
+
+    $user = $user_service->getUserByToken($data["token"])->getOneOrNullResult();
+
+    if(!$user) {
+      throw new AuthException('This token is not valid');
+    }
+
+    $response_body = array(
+      "status" => true
+    );
+
+    $newresponse = $this->_app->response->withJson($response_body);
+    return $newresponse;
+
+  }
+  
+  function reset_account() {
+
+    $user_service = $this->_app->services->get("user_service");
+    $auth = $this->_app->services->get("auth_service");
+    $data = $this->_app->request->getParsedBody();
+
+    if($data["password"] !== $data["confirm_password"]) {
+      throw new AuthException('Your password did not match the confirmed password');
+    }
+
+    $password = $auth->createPassword($data["password"]);
+    $user_service->resetPassword($data["token"], $password);
+
+    $response_body = array(
+      "status" => true
+    );
+
+    $newresponse = $this->_app->response->withJson($response_body);
+    return $newresponse;
+
+  }
 
   function logout() {
 	
