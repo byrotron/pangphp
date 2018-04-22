@@ -211,7 +211,6 @@ class UserMysqlService {
 			$user->setName($user_data["name"]);
 			$user->setSurname($user_data["surname"]);
 			$user->setEmail($user_data["email"]);
-			$user->setStatus($user_data["status"]);
 			$user->setRole($role);
 			$user->setStatus($status);
 
