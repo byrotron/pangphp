@@ -19,12 +19,11 @@ class UsersController extends AbstractController {
   
     $this->_auth->isAuthd();
     $result = $this->_privileges->protectedAction("users", "create_user", $this->_current_user);
-    
-    $string_service = $this->_app->services->get("string_service");
+	
     $user_service = $this->_app->services->get("user_service");
     $data = $this->_app->request->getParsedBody();
-    $link = md5($string_service->randomStringGenerator(32));
-    $user = $user_service->createUser($data["user"], $link);
+
+    $user = $user_service->createUser($data["user"]);
 
     $response_body = array(
       "status" => true,

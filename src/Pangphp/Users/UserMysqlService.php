@@ -10,19 +10,8 @@ use \App\Users\Entities\User as AppUser;
 
 class UserMysqlService {
 
-	/**
-	 * @var EntityManager $_em;
-	 */
 	protected $_em;
-
-	/**
-	 * @var AppAuthService $_aut
-	 */
 	protected $_auth;
-
-	/**
-	 * @var MailService $_mailer
-	 */
 	protected $_mailer;
 
 	public $total_items;
@@ -84,16 +73,6 @@ class UserMysqlService {
 			->getQuery();
 	}
 
-	function getUserByToken($token) {
-		$qb = $this->_em->createQueryBuilder();
-		
-		return $qb->select(array("u"))
-			->from('App\Users\Entities\User', 'u')
-			->where('u.reset_token = :token')
-			->setParameter('token', $token)
-			->getQuery();
-	}
-
 	function totalUsers() {
 		$qb = $this->_em->createQueryBuilder();
 
@@ -135,48 +114,6 @@ class UserMysqlService {
 
 	}
 
-	function sendResetLink($email, $link) {
-		$user = $this->getUserByEmail($email)->getOneOrNullResult();
-
-		if(!$user) {
-			throw new \Pangphp\Auth\AuthException("We could not find this email in our database. Please check the spelling and try again? If this continues please contact you adminstrator?");
-		}
-
-		$user->setResetToken($link);
-
-		$this->_mailer->sendFromAdmin();
-
-    $this->_mailer->setTo([
-      ["name" => $user->getFullname(), "email" => $user->getEmail()]
-    ]);
-    $this->_mailer->setTemplate(dirname(__FILE__) . '/Emails/reset-account.notification.php');
-    $this->_mailer->setSubject("Account Reset");
-    $this->_mailer->setData([
-			"user" => $user,
-			"link" => $link
-    ]);
-    $this->_mailer->sendmail();
-
-		
-    $this->_em->persist($user);
-    $this->_em->flush();
-
-	}
-
-	function resetPassword($token, $password) {
-		$user = $this->getUserByToken($token)->getOneOrNullResult();
-
-    if(!$user) {
-      throw new \Pangphp\Auth\AuthException('This token is not valid');
-		}
-		
-		$user->setPassword($password);
-		$user->setResetToken(NULL);
-		
-		$this->_em->persist($user);
-		$this->_em->flush();
-
-	}
 		
 	function newUserNotification(\Pangphp\Users\Entities\User $user, $password) {
 		throw new \Exception("New User notification has not been setup");
@@ -211,6 +148,7 @@ class UserMysqlService {
 			$user->setName($user_data["name"]);
 			$user->setSurname($user_data["surname"]);
 			$user->setEmail($user_data["email"]);
+			$user->setStatus($user_data["status"]);
 			$user->setRole($role);
 			$user->setStatus($status);
 
