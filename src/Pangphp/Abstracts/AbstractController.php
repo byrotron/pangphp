@@ -2,31 +2,11 @@
 
 namespace Pangphp\Abstracts;
 
-use Pangphp\Bootstrap;
-use Pangphp\Auth\AuthService;
-use App\Users\Entities\User as AppUser;
-use Pangphp\Privileges\PrivilegeMysqlService;
-
 abstract class AbstractController {
 
-    /**
-     * @var Bootstrap $_app
-     */
     protected $_app;
-
-    /**
-     * @var AuthService $_auth
-     */
     protected $_auth;
-
-    /**
-     * @var AppUser $_current_user
-     */
     protected $_current_user;
-
-    /**
-     * @var PrivilegeMysqlService $_privileges
-     */
     protected $_privileges;
 
     function __construct($app) {
