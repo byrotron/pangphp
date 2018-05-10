@@ -126,9 +126,6 @@ class AuthService {
 				return md5($this->_str->randomStringGenerator($size));
 		}
 		
-		/**
-		 * @return User
-		 */
 		function getAuthdUser($type = 'array') {
 				
 				if(isset($_SESSION["auth_token"])) {
