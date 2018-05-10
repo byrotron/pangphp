@@ -44,7 +44,7 @@ class DocumentService {
   function checkAndCreateDir($folder) {
 
     if(!is_dir($folder)) {
-      if(!mkdir($folder, $this->_permission, true)) {
+      if(!@mkdir($folder, $this->_permission, true)) {
         throw new SktnDocumentException("We were unable to create the requested directory/s");
       }
     }
