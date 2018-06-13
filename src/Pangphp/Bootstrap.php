@@ -218,7 +218,7 @@ class Bootstrap {
                 switch($ext) {
                     case "css": $header = "text/css";
                         break;
-                    case "js": $header = "text/js";
+                    case "js": $header = "text/javascript";
                         break;
                     case "map": $header = "text/json";
                         break;
@@ -237,6 +237,8 @@ class Bootstrap {
                     case "pdf": $header = "application/pdf";
                         break;
                     case "html": $header = "text/html";
+                        break;
+                    case "jpg": $header = "image/jpg";
                         break;
                     default: $header = "text/plain";
                 }
