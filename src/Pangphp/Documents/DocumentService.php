@@ -47,6 +47,7 @@ class DocumentService {
       if(!@mkdir($folder, $this->_permission, true)) {
         throw new SktnDocumentException("We were unable to create the requested directory/s");
       }
+      chmod($folder, $this->_permission);
     }
     return true;
     
