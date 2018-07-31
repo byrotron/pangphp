@@ -23,12 +23,12 @@ class UsersController extends AbstractController {
     $user_service = $this->_app->services->get("user_service");
     $data = $this->_app->request->getParsedBody();
 
-    $user = $user_service->createUser($data["user"]);
+    $user_id = $user_service->createUser($data["user"]);
 
     $response_body = array(
       "status" => true,
       "message" => "Your request was successful",
-      "result" => $user
+      "result" => $user_id
     );
 
     $newresponse = $this->_app->response->withJson($response_body);
@@ -88,19 +88,19 @@ class UsersController extends AbstractController {
     $user = $service->getUser($params["id"])->getArrayResult();
     
     if(count($user)) {
-
+      unset($user[0]["password"]);
       $response_body = array(
-          "status" => true,
-          "message" => "Your request was successful",
-          "result" => $user[0]
+        "status" => true,
+        "message" => "Your request was successful",
+        "result" => $user[0]
       );
       
     } else {
        
-       $response_body = array(
-          "status" => false,
-          "message" => "We could not find this user"
-       );
+      $response_body = array(
+        "status" => false,
+        "message" => "We could not find this user"
+      );
 
     }
 
@@ -121,8 +121,7 @@ class UsersController extends AbstractController {
 
     $data = $this->_app->request->getParsedBody();
     $user_service = $this->_app->services->get("user_service");
-	  $user_data = $this->_app->request->getParams();
-
+    
     $user = $user_service->updateUser($data["id"], $data["user"]);
 
     $response_body = array(
@@ -146,10 +145,10 @@ class UsersController extends AbstractController {
     $this->_auth->isAuthd();
     $result = $this->_privileges->protectedAction("users", "delete_user", $this->_current_user);
 
-    $params = $this->_app->request->getQueryParams();
+    $data = $this->_app->request->getParsedBody();
     $service = $this->_app->services->get("user_service");
 
-    $service->deleteUser($params["id"]);
+    $service->deleteUser($data["id"]);
     $response_body = array(
         "status" => true,
         "message" => "Your request was successful"

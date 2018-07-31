@@ -65,11 +65,12 @@ class UserMysqlService {
 	function getUserByEmail($email) {
 		$qb = $this->_em->createQueryBuilder();
 		
-		return $qb->select(array("u"))
+		return $qb->select(array("u", "r", "s"))
 			->from('App\Users\Entities\User', 'u')
 			->where('u.email = :email')
 			->setParameter('email', $email)
 			->innerJoin('u.role', 'r')
+			->innerJoin('u.status', 's')
 			->getQuery();
 	}
 
@@ -104,13 +105,14 @@ class UserMysqlService {
 		$password = $this->_auth->createPassword($original_password);
 		
 		$user->setPassword($password);
-
 		$this->_em->persist($user);
 		$this->_em->flush();
 
 		$this->newUserNotification($user, $original_password);
 
-		return $user;
+		$result = $this->getUserByEmail($user->getEmail())->getArrayResult()[0];
+		unset($result["password"]);
+		return $result;
 
 	}
 
@@ -148,14 +150,14 @@ class UserMysqlService {
 			$user->setName($user_data["name"]);
 			$user->setSurname($user_data["surname"]);
 			$user->setEmail($user_data["email"]);
-			$user->setStatus($user_data["status"]);
 			$user->setRole($role);
 			$user->setStatus($status);
 
 			$this->_em->persist($user);
 			$this->_em->flush();
 
-			return true;
+			$result = $this->getUser($user->getId());
+			return $user->getId();
 
 		} else {
 
