@@ -23,15 +23,15 @@ class RolesController extends AbstractController {
     $this->_auth->isAuthd();
     $result = $this->_privileges->protectedAction("roles", "create_role", $this->_current_user);
 
-    $role = $this->_app->services->get("role_service");
-    $body = $this->_app->request->getParsedBody();
+    $role_service = $this->_app->services->get("role_service");
+    $data = $this->_app->request->getParsedBody();
 
-    $new_role = $role->create_role($body["name"]);
+    $role = $role_service->createRole($data["name"]);
 
     $newresponse = $this->_app->response->withJson( array(
-        "status" => true,
-        "message" => "Your request was successul",
-        "result" => $new_role->get_array()
+      "status" => true,
+      "message" => "Your request was successul",
+      "result" => $role
     ));
 
     return $newresponse;
@@ -48,7 +48,7 @@ class RolesController extends AbstractController {
     $result = $this->_privileges->protectedAction("roles", "get_roles", $this->_current_user);
 
     $service = $service = $this->_app->services->get("role_service");
-    $roles = $service->get_roles();
+    $roles = $service->getRoles();
     
     $response_body = array(
       "status" => true,
@@ -72,7 +72,7 @@ class RolesController extends AbstractController {
 
     $service = $service = $this->_app->services->get("role_service");
     $data = $this->_app->request->getParsedBody();
-    $updated = $service->update_role($data["id"], $data["name"]);
+    $updated = $service->updateRole($data["id"], $data["name"]);
 
     if($updated === true) {
       $response_body = array(
@@ -105,7 +105,7 @@ class RolesController extends AbstractController {
 
     $service = $service = $this->_app->services->get("role_service");
     $data = $this->_app->request->getParsedBody();
-    $found = $service->delete_role($data["id"]);
+    $found = $service->deleteRole($data["id"]);
 
     if($found === true) {
       $response_body = array(
