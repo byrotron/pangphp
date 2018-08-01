@@ -85,6 +85,16 @@ class UserMysqlService {
 			->getQuery();
 	}
 
+	function getUserByToken($token) {
+		$qb = $this->_em->createQueryBuilder();
+		
+		return $qb->select(array("u"))
+			->from('App\Users\Entities\User', 'u')
+			->where('u.reset_token = :token')
+			->setParameter('token', $token)
+			->getQuery();
+	}
+
 	function totalUsers() {
 		$qb = $this->_em->createQueryBuilder();
 
