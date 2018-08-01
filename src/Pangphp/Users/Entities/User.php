@@ -45,12 +45,17 @@ abstract class User {
     protected $role;
 
     /** 
-    * @Column(type="string", nullable=true, options={"default"=NULL}) 
+    * @Column(type="string", nullable=true) 
     */
     protected $auth_token;
 
     /** 
-    * @Column(type="datetime", nullable=true, options={"default"=NULL}) 
+    * @Column(type="string", nullable=true) 
+    */
+    protected $reset_token;
+
+    /** 
+    * @Column(type="datetime", nullable=true) 
     */
     protected $last_login;
 
@@ -160,4 +165,24 @@ abstract class User {
         return $this->name . " " . $this->surname;
     }
 
+
+    /**
+     * Get the value of reset_token
+     */ 
+    public function getResetToken()
+    {
+        return $this->reset_token;
+    }
+
+    /**
+     * Set the value of reset_token
+     *
+     * @return  self
+     */ 
+    public function setResetToken($reset_token)
+    {
+        $this->reset_token = $reset_token;
+
+        return $this;
+    }
  }
