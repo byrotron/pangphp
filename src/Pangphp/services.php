@@ -113,7 +113,7 @@ $services_array = [
 	},
 	
 	"error_service" =>function($c) {
-		$error_service = new ErrorService($c['entity_manager'], $c['config']);
+		$error_service = new ErrorService($c['entity_manager'], $c['config'], $c["mail"]);
 		$error_service->setEnvironment($c->get('settings')["env"]);
 		return $error_service;
 	},

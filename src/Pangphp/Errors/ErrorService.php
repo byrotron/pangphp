@@ -3,30 +3,37 @@
 namespace Pangphp\Errors;
 
 use \Doctrine\ORM\EntityManager;
-use \Pangphp\Errors\Entities\Error;
+use \Pangphp\Errors\Entities\SystemError;
+use \Pangphp\Errors\Entities\ClientError;
 use \Pangphp\Errors\ErrorMailService;
 use \Noodlehaus\Config;
+use \Pangphp\Mail\MailService;
 
-class ErrorService{
+class ErrorService {
 	
+	/**
+	 * @var EntityManager
+	 */
 	protected $_em;
+
+	/**
+	 * @var Config
+	 */
 	protected $_config;
+
+	/**
+	 * @var MailService
+	 */
+	protected $_mailer;
+
 	protected $_env;
-
-	protected $_e;
-	protected $_code = 0;
-	protected $_message;
-	protected $_trace;
-
-	protected $_instances;
-	protected $_instance;
-
 	public $error;
 	
-	public function __construct(EntityManager $em, Config $config){
+	public function __construct(EntityManager $em, Config $config, MailService $mail){
 
 		$this->_em = $em;
 		$this->_config = $config;
+		$this->_mailer = $mail;
 		
 	}
 
@@ -34,192 +41,106 @@ class ErrorService{
 		$this->_env = $env;
 	}
 	
-	public function handleError(\Exception $e, $path){
+	public function handleError($e, $path){
 
-		require $path .  "/../src/exceptions.php";
-		require dirname(__FILE__) . "/../pang_exceptions.php";
 		$this->error = new \stdClass();
-		
-		$this->_instances = array_merge($pangphp_exceptions, $app_exceptions);
-		
-		$this->setException($e);
-		$this->setMessage($e->getMessage());
-		$this->setCode($e->getCode());
-		$this->setLine($e->getLine());
-		$this->setFile($e->getFile());
-		$this->setTrace($e->getTrace());
-		$this->_instance = $this->getInstance();
 		$this->error->status = false;
-		$this->error->message = $this->_message;
-
-		if ($this->_env !== "development"){
-			$this->inProduction();
-			return;
-		}
-		$this->inDevelopment();
-		
-	}
-	
-	public function getInstance() {
-		
-		$instance_found = false;
-		
-		foreach($this->_instances as $instance) {
-			if($this->_e == $instance['instance']) {
-				$instance_found = $instance;
-				break;
-			}
+		if ($this->_env === "development"){
+			$this->error->trace = $e->getTrace();
+			$this->error->actual_message = $e->getMessage();
 		}
 
-		return $instance_found;
+		if(new \Pangphp\ClientException() instanceof $e) {
+			$this->error->message = $e->getMessage();
+			$this->insertClientException($e);
+		} else {
+			$this->error->message = "Your request failed, if this continues, please contact your system adminsitrator";
+			$this->insertSystemException($e);
+		}
 
+		return $this->error;
 	}
 	
-	public function insertException(){
+	public function insertSystemException($e){
 		
-		$insert_error = new Error();
-		$insert_error->setInstance($this->_e);
-		$insert_error->setCode($this->_code);
-		$insert_error->setLine($this->_line);
-		$insert_error->setFile($this->_file);
-		$insert_error->setTrace(json_encode($this->_trace));
-		$insert_error->setMessage($this->_message);
-		$insert_error->setLoggedAt();
+		$error = new SystemError();
+		$error->setLine($e->getLine());
+		$error->setFile($e->getFile());
+		$error->setTrace(json_encode($e->getTrace()));
+		$error->setMessage($e->getMessage());
+		$error->setLoggedAt();
 		
 		// $this->_em->resetEntityManager();
-		$this->_em->persist($insert_error);
+		$this->_em->persist($error);
 		$this->_em->flush();
 
 	}
 	
-	public function inProduction (){
+	public function insertClientException(\Exception $e){
 		
-		if($this->_instance) {
-			$this->error->code = $this->_instance["code"];
-			if($this->_instance['message']) {
-				$this->error->message = $this->_instance['message'];
-			}
-
-		}
-
-		$this->insertException();
-	}
-	
-	public function inDevelopment(){
-
-		$this->error->exception = $this->_e;
-		$this->error->trace = $this->_trace;
-
-		if($this->_instance) {
-			
-			$this->error->code = $this->_instance["code"];
-			$this->error->actual_message = $this->_message;
-
-			if($this->_instance['message']) {
-				$this->error->message = $this->_instance['message'];
-			}
-
-		} else {
-
-			$this->error->message = $this->_message;
-
-		}
-
-	}
-
-	public function cleanErrorLogs() {
+		$error = new ClientError();
+		$error->setLine($e->getLine());
+		$error->setFile($e->getFile());
+		$error->setTrace(json_encode($e->getTrace()));
+		$error->setMessage($e->getMessage());
+		$error->setLoggedAt();
 		
-		if($this->_config->get('clean_error_log.delete_all')){
-			$this->deleteAll();
-		} else {
-			if($this->_config->get('clean_error_log.limit') > 0){
-				$this->deleteLimit();
-			}
-		}
-	}
+		// $this->_em->resetEntityManager();
+		$this->_em->persist($error);
+		$this->_em->flush();
+
+	}	
 	
-	public function deleteAll(){
+	public function cleanSystemErrors($days = 7){
+
+		$limit = $this->_config->get("error_log.limit");		
+
 		$qb = $this->_em->createQueryBuilder();
+		$date = new \DateTime();
+		$back_date = $date->sub(new \DateInterval('P7D'));
 		
-		$qb->delete("Pangphp\Errors\Entities\Error", "e")
-			 ->where("e.id > :id")
-			 ->setParameter("id", 0)
-			 ->getQuery()
-			 ->getResult();
-	}
-	
-	public function deleteLimit(){
+		$qb->delete("Pangphp\Errors\Entities\SystemError", "e")
+		->where("e.logged_at <= :end")
+		->setParameters(array(
+			"end" => $back_date->format('Y-m-d h:i'),
+		))
+		->getQuery()
+		->getResult();
 
-		$limit = $this->_config->get("clean_error_log.limit");
-		
-		if ($this->getTableRowCount() > $limit){
-			$qb = $this->_em->createQueryBuilder();
-			
-			$start = $this->_em->getRepository("Pangphp\Errors\Entities\Error")
-				->findOneBy(array(), array('id' => 'DESC'));
-			
-			(!is_null($start)) ? $start = $start->getId() : $start = 0;
-			
-			$end = $start - $limit;
-			
-			$qb->delete("Pangphp\Errors\Entities\Error", "e")
-			->where("e.id <= :end")
-			->setParameters(array(
-				"end"   => $end,
-			))
-			->getQuery()
-			->getResult();
-			
-		}
 	}
 	
-	public function getTableRowCount(){
+	public function cleanClientErrors($days = 7){
+
+		$limit = $this->_config->get("error_log.limit");		
+
 		$qb = $this->_em->createQueryBuilder();
+		$date = new \DateTime();
+		$back_date = $date->sub(new \DateInterval('P7D'));
 		
-		return $qb->select("COUNT(e.id)")
-							->from("Pangphp\Errors\Entities\Error", "e")
-							->getQuery()
-							->getSingleScalarResult();
+		$qb->delete("Pangphp\Errors\Entities\ClientError", "e")
+		->where("e.logged_at <= :end")
+		->setParameters(array(
+			"end" => $back_date->format('Y-m-d h:i'),
+		))
+		->getQuery()
+		->getResult();
+
+	}
+
+	public function sendErrorTable() {
+
+		$errors = $this->_em->getRepository('Pangphp\Errors\Entities\SystemError')->findAll();
+		$this->_mailer->sendToAdmin();
+		$this->_mailer->sendFromAdmin();
+		$this->_mailer->setTemplate(dirname(__FILE__) . DIRECTORY_SEPARATOR ."Emails". DIRECTORY_SEPARATOR . "error.email.php");
 		
+		$this->_mailer->setData([
+			"name" => "Administration Team",
+			"url" => $this->_config->get("url"),
+			"errors" => $errors,
+		]);
+		
+		$this->_mailer->sendmail();
 	}
 	
-	public function getCode(){
-		return $this->_code;
-	}
-	
-	public function setCode($code){
-		$this->_code = $code;
-	}
-	
-	public function getMessage(){
-		return $this->_message;
-	}
-
-	public function setLine($line) {
-		$this->_line = $line;
-	}
-
-	public function setFile($file){
-		$this->_file = $file;
-	}
-	
-	public function setMessage($message){
-		$this->_message = $message;
-	}
-
-	public function getTrace(){
-		return $this->_trace;
-	}
-	
-	public function setTrace($trace){
-		$this->_trace = $trace;
-	}
-	
-	public function getException(){
-		return $this->_e;
-	}
-	
-	public function setException(\Exception $e){
-		$this->_e = get_class($e);
-	}
 }

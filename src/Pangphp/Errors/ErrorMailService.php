@@ -56,11 +56,11 @@ class ErrorMailService {
 		$qb = $this->_em->createQueryBuilder();
 		
 		return $qb->select("e")
-							->from("Pangphp\Errors\Entities\Error", "e")
-							->setMaxResults($amount)
-							->orderBy("e.id", "DESC")
-							->getQuery()
-							->getArrayResult();
+			->from("Pangphp\Errors\Entities\Error", "e")
+			->setMaxResults($amount)
+			->orderBy("e.id", "DESC")
+			->getQuery()
+			->getArrayResult();
 	}
 	
 	public function getData($start_date, $end_date) {

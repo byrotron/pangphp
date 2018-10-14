@@ -57,13 +57,31 @@ class Bootstrap {
           "data" => $data_path,
           "public" => $path,
           "entities" => $this->_setEntities($entities_path)
-        ]
+        ],
+        "phpErrorHandler" => function ($c) {
+          return function ($request, $response, $exception) use ($c) {
+            return $this->_errorHandler($c, $exception);
+          };
+        },
+        "errorHandler" => function ($c) {
+          return function ($request, $response, $exception) use ($c) {
+            return $this->_errorHandler($c, $exception);
+          };
+        }
       ]);
 
       $this->_app = new App($container);
       $this->services = $this->_app->getContainer();
       $this->setServices($services_path);
 
+    }
+
+    protected function _errorHandler( $c, $exception) {
+        $error = $this->services->get("error_service");
+        $error->handleError($exception, $this->_app_path);
+        return $c['response']->withStatus(500)
+          ->withHeader('Content-Type', 'application/json')
+          ->withJson($error->error);;
     }
 
     public function setServices($path) {

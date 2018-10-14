@@ -40,10 +40,10 @@ class MailService {
   }
   
   function sendToAdmin(){
-	  $this->setTo([
+	  $this->setTo([[
 		  "email" => $this->_config->get("mail.admin_email"),
 		  "name"  => $this->_config->get("mail.admin_name")
-	  ]);
+	  ]]);
   }
 
   function setData($key, $val = null) {

@@ -23,7 +23,7 @@ class AuthController {
     $user = $user_obj->getOneOrNullResult();
     
     if(!$user){
-	    throw new AuthException("This account does not exist");
+	    throw new \Pangphp\ClientException("This account does not exist");
     }
 
     $auth->login($data["password"], $user);
@@ -69,7 +69,7 @@ class AuthController {
     $user = $user_service->getUserByToken($data["token"])->getOneOrNullResult();
 
     if(!$user) {
-      throw new AuthException('This token is not valid');
+      throw new \Pangphp\ClientException('This token is not valid');
     }
 
     $response_body = array(
@@ -88,7 +88,7 @@ class AuthController {
     $data = $this->_app->request->getParsedBody();
 
     if($data["password"] !== $data["confirm_password"]) {
-      throw new AuthException('Your password did not match the confirmed password');
+      throw new \Pangphp\ClientException('Your password did not match the confirmed password');
     }
 
     $password = $auth->createPassword($data["password"]);
@@ -145,7 +145,7 @@ class AuthController {
 
     }
 
-    throw new AuthException("You are not not logged in");
+    throw new \Pangphp\ClientException("You are not not logged in");
 
   } 
 

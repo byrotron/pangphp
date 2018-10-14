@@ -2,28 +2,14 @@
 
 namespace Pangphp\Errors\Entities;
 
-/**
- * @Entity
- * @Table(name="errors")
- */
 class Error {
 	
-	/**
+		/**
 	 * @Id
 	 * @Column(type="integer")
 	 * @GeneratedValue()
 	 */
 	protected $id;
-	
-	/**
-	 * @Column(type="string", nullable=false)
-	 */
-	protected $instance_name;
-	
-	/**
-	 * @Column(type="integer", nullable=false, options={"default" : 0})
-	 */
-	protected $code;
 
 	/**
 	 * @Column(type="integer", nullable=false)
@@ -46,72 +32,117 @@ class Error {
 	protected $message;
 	
 	/**
-	 * @Column(type="date", nullable=false)
+	 * @Column(type="datetime", nullable=false)
 	 */
 	protected $logged_at;
 	
-	public function getId(){
+	/**
+	 * Get the value of id
+	 */ 
+	public function getId()
+	{
 		return $this->id;
 	}
-	
-	public function setId($id){
-		$this->id = $id;
-	}
-	
-	public function getInstance(){
-		return $this->instance_name;
-	}
-	
-	public function setInstance($instance){
-		$this->instance_name = $instance;
-	}
-	
-	public function getCode(){
-		return $this->code;
-	}
-	
-	public function setCode($code){
-		$this->code = $code;
-	}
-		
-	public function getLine(){
+
+	/**
+	 * Get the value of line
+	 */ 
+	public function getLine()
+	{
 		return $this->line;
 	}
-	
-	public function setLine($line){
+
+	/**
+	 * Set the value of line
+	 *
+	 * @return  self
+	 */ 
+	public function setLine($line)
+	{
 		$this->line = $line;
-	}
-		
-	public function getFile(){
+
+		return $this;
+  }
+  
+	/**
+	 * Get the value of file
+	 */ 
+	public function getFile()
+	{
 		return $this->file;
 	}
-	
-	public function setFile($file){
+
+	/**
+	 * Set the value of file
+	 *
+	 * @return  self
+	 */ 
+	public function setFile($file)
+	{
 		$this->file = $file;
-	}
-		
-	public function getTrace(){
-		return $this->trace;
-	}
-	
-	public function setTrace($trace){
-		$this->trace = $trace;
+
+		return $this;
 	}
 
-	public function getMessage(){
+	/**
+	 * Get the value of trace
+	 */ 
+	public function getTrace()
+	{
+		return $this->trace;
+	}
+
+	/**
+	 * Set the value of trace
+	 *
+	 * @return  self
+	 */ 
+	public function setTrace($trace)
+	{
+		$this->trace = $trace;
+
+		return $this;
+	}
+
+	/**
+	 * Get the value of message
+	 */ 
+	public function getMessage()
+	{
 		return $this->message;
 	}
-	
-	public function setMessage($message){
+
+	/**
+	 * Set the value of message
+	 *
+	 * @return  self
+	 */ 
+	public function setMessage($message)
+	{
 		$this->message = $message;
+
+		return $this;
 	}
-	
-	public function getLoggedAt(){
+
+	/**
+	 * Get the value of logged_at
+   * @return DateTime
+	 */ 
+	public function getLoggedAt()
+	{
 		return $this->logged_at;
 	}
-	
-	public function setLoggedAt() {
-		$this->logged_at = new \DateTime('now');
+
+	/**
+	 * Set the value of logged_at
+	 *
+	 * @return  self
+	 */ 
+	public function setLoggedAt()
+	{
+		$this->logged_at = new \DateTime();
+
+		return $this;
 	}
-	
+
 }

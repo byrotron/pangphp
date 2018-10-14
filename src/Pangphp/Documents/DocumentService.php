@@ -84,23 +84,26 @@ class DocumentService {
 
     $folder_time = new \DateTime($date . " " . $time);
     $now = new \DateTime("now");
-
+var_dump($now);
+var_dump($folder_time);
+var_dump($now > $folder_time);
     return $now > $folder_time;
 
   }
 
-  function deleteExpiredTempFiles() {
-    
-    if(is_dir($this->_tmp_dir)) {
-      $folders = scandir($this->_tmp_dir);
-      
+  function deleteExpiredTempFiles($public_folder) {
+    $dir = $public_folder . $this->_tmp_dir;
+
+    if(is_dir($dir)) {
+      $folders = scandir($dir);
+
       if(count($folders) > 0) {
         foreach($folders as $folder) {
 
           if($this->folderInvalid($folder)) {
             
-            array_map("unlink", glob("$this->_tmp_dir/$folder/*.*"));
-            rmdir("$this->_tmp_dir/$folder");
+            array_map("unlink", glob("$dir/$folder/*.*"));
+            rmdir("$dir/$folder");
 
           }
         }
