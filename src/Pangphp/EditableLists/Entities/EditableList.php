@@ -6,7 +6,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @Entity
- * @Table(name="editable_lists", uniqueConstraints={@UniqueConstraint(name="unique_name", columns={"name"})})
+ * @Table(name="editable_lists", uniqueConstraints={@UniqueConstraint(name="unique_name", columns={"name", "group_id"})})
  */
 class EditableList {
 
